@@ -69,6 +69,9 @@ sub getDbInfo {
 }
 
 sub printHeader {
+  if($_[0] eq "Puppeteer"){
+    $_[0]="Oracle RMAN & DB2";
+  }
   printf "\n                      $_[0] Report                     \n" if ($display==0);
   printf "Cluster\t\tTotal\tSuccess\tFailed\tActive\tSuccess Rate\n" if ($display==0);
   printf "<TABLE BORDER=1 ALIGN=center><TR BGCOLOR=lightgreen><TD ALIGN=center colspan='6'>$_[0] Report</TD></TR>" if ($display==1);
@@ -130,7 +133,7 @@ sub printReport {
         my @cols=split(',', $types{$type}{$clusterName});
         my $successRate;
         if($cols[0] > 0){
-          $successRate=(($cols[1]/$cols[0])*100);
+          $successRate=(($cols[0]/$cols[1])*100);
         } else {
           $successRate=0;
         }
