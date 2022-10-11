@@ -7,6 +7,7 @@ use Getopt::Std;
 use JSON;
 use Term::ReadKey;
 use Time::HiRes qw(gettimeofday);
+use POSIX;
 use Switch;
 
 #Set Environment Variable to no verify certs
@@ -129,13 +130,14 @@ sub getObjectInfo{
     $report[$i]->{'SN'}=$response->{'protectionSourcesJobsSummary'}->[$i]->{'registeredSource'};
     $report[$i]->{'NSS'}=$response->{'protectionSourcesJobsSummary'}->[$i]->{'numSnapshots'};
     $report[$i]->{'LRS'}=$response->{'protectionSourcesJobsSummary'}->[$i]->{'lastRunStatus'};
+    $report[$i]->{'LRS'}=~s/^.//;
     $report[$i]->{'ST'}=$response->{'protectionSourcesJobsSummary'}->[$i]->{'lastRunType'};
-    $report[$i]->{'LRST'}=$response->{'protectionSourcesJobsSummary'}->[$i]->{'lastRunStartTimeUsecs'};
-    $report[$i]->{'LRET'}=$response->{'protectionSourcesJobsSummary'}->[$i]->{'lastRunEndTimeUsecs'};
-    $report[$i]->{'FSSS'}=$response->{'protectionSourcesJobsSummary'}->[$i]->{'firstSuccessfulRunTimeUsecs'};
-    $report[$i]->{'FFSS'}=$response->{'protectionSourcesJobsSummary'}->[$i]->{'firstFailedRunTimeUsecs'};
-    $report[$i]->{'LSSS'}=$response->{'protectionSourcesJobsSummary'}->[$i]->{'lastSuccessfulRunTimeUsecs'};
-    $report[$i]->{'LFSS'}=$response->{'protectionSourcesJobsSummary'}->[$i]->{'lastFailedRunTimeUsecs'};
+    $report[$i]->{'LRST'}=POSIX::strftime('%m/%d/%Y %I:%M:%S %p',localtime($response->{'protectionSourcesJobsSummary'}->[$i]->{'lastRunStartTimeUsecs'}/1000/1000));
+    $report[$i]->{'LRET'}=POSIX::strftime('%m/%d/%Y %I:%M:%S %p',localtime($response->{'protectionSourcesJobsSummary'}->[$i]->{'lastRunEndTimeUsecs'}/1000/1000));
+    $report[$i]->{'FSSS'}=POSIX::strftime('%m/%d/%Y %I:%M:%S %p',localtime($response->{'protectionSourcesJobsSummary'}->[$i]->{'firstSuccessfulRunTimeUsecs'}/1000/1000));
+    $report[$i]->{'FFSS'}=POSIX::strftime('%m/%d/%Y %I:%M:%S %p',localtime($response->{'protectionSourcesJobsSummary'}->[$i]->{'firstFailedRunTimeUsecs'}/1000/1000));
+    $report[$i]->{'LSSS'}=POSIX::strftime('%m/%d/%Y %I:%M:%S %p',localtime($response->{'protectionSourcesJobsSummary'}->[$i]->{'lastSuccessfulRunTimeUsecs'}/1000/1000));
+    $report[$i]->{'LFSS'}=POSIX::strftime('%m/%d/%Y %I:%M:%S %p',localtime($response->{'protectionSourcesJobsSummary'}->[$i]->{'lastFailedRunTimeUsecs'}/1000/1000));
     $report[$i]->{'NOS'}=$response->{'protectionSourcesJobsSummary'}->[$i]->{'numSnapshots'}-$response->{'protectionSourcesJobsSummary'}->[$i]->{'numErrors'}-$response->{'protectionSourcesJobsSummary'}->[$i]->{'numWarnings'};
     $report[$i]->{'NOE'}=$response->{'protectionSourcesJobsSummary'}->[$i]->{'numErrors'};
     $report[$i]->{'NOW'}=$response->{'protectionSourcesJobsSummary'}->[$i]->{'numWarnings'};
@@ -166,8 +168,14 @@ sub getObjectInfo{
     print "</TR><TR>" if exists $options{w};
     
     for(my $j=0;$j<=$#report;$j++){
+      my $rowColor;
+      if($report[$j]->{'LRS'} eq 'Success'){
+        $rowColor='"green"';
+      } else {
+        $rowColor='"red"';
+      }
       print $report[$j]->{'OT'}."," if !exists $options{w};
-      print "<TR><TD>".$report[$j]->{'OT'}."</TD>" if exists $options{w};
+      print "<TR bgcolor=".$rowColor."><TD>".$report[$j]->{'OT'}."</TD>" if exists $options{w};
       print $report[$j]->{'ON'}."," if !exists $options{w};
       print "<TD>".$report[$j]->{'ON'}."</TD>" if exists $options{w};
       print $report[$j]->{'SN'}."," if !exists $options{w};
@@ -209,8 +217,15 @@ sub getObjectInfo{
     foreach(@cols){
       print "<TH>".$fields{$_}."</TH>" if exists $options{w};
     }
-    print "</TR><TR>" if exists $options{w};
+    print "</TR>" if exists $options{w};
     for (my $j=0;$j<=$#report;$j++){
+      my $rowColor;
+      if($report[$j]->{'LRS'} eq 'Success'){
+        $rowColor='"green"';
+      } else {
+        $rowColor='"red"';
+      }
+      print "<TR bgcolor=".$rowColor.">" if exists $options{w};
       foreach(@cols){
         if($cols[$#cols] eq $_){
           if($_ eq "LP" || $_  eq "DR" || $_ eq "SR"){
