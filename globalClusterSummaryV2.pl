@@ -152,7 +152,9 @@ sub printReport {
   my $partialColor="FEFD61";
   my $failedColor="D75757";
   my $missedColor="F0B15A";
+  my $totalColor="0000F3";
   my $activeColor="737273";
+  my ($totalCompleted, $totalSuccess, $totalPartial, $totalFailed, $totalMissed, $totalActive, $totalSuccessRate) = (0,0,0,0,0,0);
   foreach my $cluster (sort keys %clusterInfo){
     foreach my $status (1,4,5,6,8){
       if (not exists ($clusterInfo{$cluster}{$status})){
@@ -162,7 +164,15 @@ sub printReport {
     my $successRate=int(($clusterInfo{$cluster}{4}+$clusterInfo{$cluster}{5})/$clusterInfo{$cluster}{6}*100);
     my $total=$clusterInfo{$cluster}{4}+$clusterInfo{$cluster}{1}+$clusterInfo{$cluster}{5}+$clusterInfo{$cluster}{6}+$clusterInfo{$cluster}{8};
     print "\n<TR><TD>$cluster</TD><TD bgcolor=$completedColor>$total</TD><TD bgcolor=$successColor>$clusterInfo{$cluster}{4}</TD><TD bgcolor=$partialColor>$clusterInfo{$cluster}{5}</TD><TD bgcolor=$failedColor>$clusterInfo{$cluster}{6}</TD><TD bgcolor=$missedColor>$clusterInfo{$cluster}{8}</TD><TD bgcolor=$activeColor>$clusterInfo{$cluster}{1}</TD><TD>$successRate</TD></TR>\n" if ($display==1);
+    $totalCompleted=$totalCompleted+$total;
+    $totalSuccess=$totalSuccess+$clusterInfo{$cluster}{4};
+    $totalPartial=$totalPartial+$clusterInfo{$cluster}{5};
+    $totalFailed=$totalFailed+$clusterInfo{$cluster}{6};
+    $totalMissed=$totalMissed+$clusterInfo{$cluster}{8};
+    $totalMissed=$totalMissed+$clusterInfo{$cluster}{8};
   }
+  my $totalSuccessRate=int(($totalSuccess+$totalPartial)/$totalFailed*100);
+  print "\n<TR><TD bgcolor=$totalColor></TD><TD bgcolor=$totalColor>$totalCompleted</TD><TD bgcolor=$totalColor>$totalSuccess</TD><TD bgcolor=$totalColor>$totalPartial</TD><TD bgcolor=$totalColor>$totalFailed</TD><TD bgcolor=$totalColor>$totalMissed</TD><TD bgcolor=$totalColor>$totalActive</TD><TD bgcolor=$totalColor>$totalSuccessRate</TD></TR>\n" if ($display==1);
   printf "</TABLE><br/>\n" if ($display==1);
   printf "</BODY></HTML>\n" if ($display==1);
 }  
