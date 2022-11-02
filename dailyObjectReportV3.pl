@@ -154,8 +154,8 @@ sub printReport {
       $textColor='black';
     }
     my $startTime=POSIX::strftime('%m/%d/%Y %I:%M:%S %p',localtime($cols[5]/1000/1000));
-    my $expireTime=POSIX::strftime('%m/%d/%Y %I:%M:%S %p',localtime($cols[7]/1000/1000));
-    my $expireYear=POSIX::strftime('%m/%d/%Y',localtime($cols[7]/1000/1000));
+    my $expireTime=POSIX::strftime('%m/%d/%Y %I:%M:%S %p',localtime($cols[8]/1000/1000));
+    my $expireYear=POSIX::strftime('%m/%d/%Y',localtime($cols[8]/1000/1000));
     if($expireYear == "12/31/1969"){
       $expireTime="Never"
     }
