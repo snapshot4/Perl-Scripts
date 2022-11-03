@@ -17,7 +17,7 @@ use clusterInfo;
  
 # Global Variables
 my $display=1; #(0-Standard Display, 1-HTML)
-my $debug=0; #(0-No log messages, 1-Info messages, 2-Debug messages)
+my $debug=2; #(0-No log messages, 1-Info messages, 2-Debug messages)
 my $hoursAgo=24;
 my $title="Daily Object Report";
 my @clusters=clusterInfo::clusterList();
@@ -118,7 +118,7 @@ sub gatherData{
     print "Executing Query\n" if ($debug>=2);
     $sth->execute() or die DBI::errstr;
     while(my @rows=$sth->fetchrow_array){
-      print "ROW=$rows[0]\t$rows[1]\t\t$rows[2]\t$rows[3]\t$rows[4]\t$rows[5]\t$rows[6]\t$rows[7]\n" if ($debug>=2);
+      print "ROW=$rows[0]\t$rows[1]\t\t$rows[2]\t$rows[3]\t$rows[4]\t$rows[5]\t$rows[6]\t$rows[7]\t$rows[8]\n" if ($debug>=2);
       if($rows[2] eq "Failure"){
         push(@failure, "$rows[0],$rows[1],$rows[2],$rows[3],$rows[4],$rows[5],$rows[6],$rows[7],$rows[8]");
       } elsif($rows[2] eq "Success"){
@@ -138,7 +138,9 @@ sub printReport {
   printf "<HTML><HEAD></HEAD><BODY><Center><H1>$title</H1></CENTER>" if ($display==1);
   printHeader();
   foreach(@data){
+    print "Data Line: $_\n" if ($debug==2);
     my @cols=split(",",$_);
+    print "Cols Line: $cols[0],$cols[1],$cols[2],$cols[3],$cols[4],$cols[5],$cols[6],$cols[7],$cols[8]\n" if($debug==2);
     my $bgColor;
     my $textColor;
     if($cols[2] eq "Success"){
@@ -153,11 +155,11 @@ sub printReport {
       $bgColor='"yellow"';
       $textColor='black';
     }
-    my $startTime=POSIX::strftime('%m/%d/%Y %I:%M:%S %p',localtime($cols[5]/1000/1000));
+    my $startTime=POSIX::strftime('%m/%d/%Y %I:%M:%S %p',localtime($cols[6]/1000/1000));
     my $expireTime=POSIX::strftime('%m/%d/%Y %I:%M:%S %p',localtime($cols[8]/1000/1000));
     my $expireYear=POSIX::strftime('%m/%d/%Y',localtime($cols[8]/1000/1000));
     if($expireYear == "12/31/1969"){
-      $expireTime="Never"
+      $expireTime="Job Running"
     }
     my $duration=int($cols[7]/1000/1000);
     my $hours;
